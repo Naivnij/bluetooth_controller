@@ -66,6 +66,17 @@ var app = {
                         bluetoothSerial.subscribe('\n',
                             function (data) {
                             app.show("Read: " + data);
+                            
+                            if ( data.search("f") >= 0 ) {
+                                bluetoothSerial.write("f\n");
+                                window.plugins.keydriver.broadcastKey('KEYCODE_MEDIA_PLAY_PAUSE', function(ret) {
+                                    true;
+                                });
+                            } else {
+                                if ( data.search("p") >= 0 ) {
+                                    bluetoothSerial.write("p\n");
+                                }
+                            }                            
                             },
                             function(error) {
                                 // TODO: unsubscribe!
