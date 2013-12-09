@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 var app = {
     // Application Constructor
     initialize: function() {
@@ -32,12 +33,12 @@ var app = {
                         bluetoothSerial.list(
                             function(results) {
                                 app.show("Got results: " + results.length);
-                                for(var i=0; i<results.length; i++) {
+                                for (var i = 0; i < results.length; i++) {
                                     var result = results[i];
                                     try {
                                         app.show("Device " + result.name + ": " + result.address);
                                         sel.append('<option value="' + result.address + '">' + (result.name || "(empty)") + '</option>');
-                                    } catch(e) {
+                                    } catch (e) {
                                         app.show(e);
                                     }
 
@@ -63,25 +64,41 @@ var app = {
                     function() {
                         app.show("Connected to: " + current_address);
                         $('#disconnect-bttn').removeAttr('disabled');
+                        $('#z-thr-value').removeAttr('disabled');
+                        $('#z-time-multi-value').removeAttr('disabled');
                         bluetoothSerial.subscribe('\n',
-                            function (data) {
-                            app.show("Read: " + data);
-                            
-                            if ( data.search("f") >= 0 ) {
-                                //bluetoothSerial.write("f\n");
-                                window.plugins.keydriver.broadcastKey('KEYCODE_MEDIA_NEXT', function(ret) {true;});
-                            } else {
-                                if ( data.search("p") >= 0 ) {
-                                    //bluetoothSerial.write("p\n");
-                                    window.plugins.keydriver.broadcastKey('KEYCODE_MEDIA_PLAY_PAUSE', function(ret) { true; });
+                            function(data) {
+                                app.show("Read: " + data);
+
+                                if (data.search("f") >= 0) {
+                                    //bluetoothSerial.write("f\n");
+                                    window.plugins.keydriver.broadcastKey('KEYCODE_MEDIA_NEXT', function(ret) { true; });
+                                } else {
+                                    if (data.search("p") >= 0) {
+                                        //bluetoothSerial.write("p\n");
+                                        window.plugins.keydriver.broadcastKey('KEYCODE_MEDIA_PLAY_PAUSE', function(ret) { true; });
+                                    }
                                 }
-                            }                            
                             },
                             function(error) {
                                 // TODO: unsubscribe!
                                 app.show("Read failure: " + error);
                             }
                         );
+                        //  Tap values
+                        var z_current_thr = null;
+                        $('#z-thr-value').change(function() {
+                            z_current_thr = this.value;
+                            bluetoothSerial.write(z_current_thr + "\n");
+                            app.show("THR sent: " + z_current_thr);
+                        });
+                        var z_current_time_multi = null;
+                        $('#z-time-multi-value').change(function() {
+                            z_current_time_multi = this.value;
+                            bluetoothSerial.write(z_current_time_multi + "\n");
+                            app.show("Time multi sent: " + z_current_time_multi);
+                        });
+
                     },
                     function(error) {
                         app.show("Connection failure: " + error, true);
@@ -93,8 +110,8 @@ var app = {
                 app.show("Disconnected from: " + current_address);
                 bluetoothSerial.unsubscribe(
                     function(data) {
-                        app.show("Unsubscribe: " + data);
-                        var disconnect = function () {
+                        //app.show("Unsubscribe: " + data);
+                        var disconnect = function() {
                             app.show("Clearing buffer");
                             bluetoothSerial.clear(
                                 function(data) {
@@ -117,7 +134,7 @@ var app = {
                         };
 
                         // here's the real action of the manageConnection function:
-                        bluetoothSerial.isConnected(disconnect, 
+                        bluetoothSerial.isConnected(disconnect,
                             function() {
                                 app.show("Device not connected");
                             }
@@ -155,7 +172,7 @@ var app = {
         }, false);
     },
     show: function(msg, error) {
-        if(error) msg = '<p style="color: red; font-weight: bold">' + msg + '</p>';
+        if (error) msg = '<p style="color: red; font-weight: bold">' + msg + '</p>';
         else msg = '<p>' + msg + '</p>';
         $('#deviceready').append(msg);
     },
