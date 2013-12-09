@@ -82,7 +82,20 @@ var app = {
                                 app.show("Read failure: " + error);
                             }
                         );
-                    },
+                        //  Tap values
+                        var z_current_thr = null;
+                        $('#z-thr-value').change(function() {
+                            z_current_thr = this.value;
+                            bluetoothSerial.write(z_current_thr + "\n");
+                            app.show("THR sent: " + z_current_thr);
+                        });
+                        var z_current_time_multi = null;
+                        $('#z-time-multi-value').change(function() {
+                            z_current_time_multi = this.value;
+                            bluetoothSerial.write(z_current_time_multi + "\n");
+                            app.show("Time multi sent: " + z_current_time_multi);
+                        });
+                        },
                     function(error) {
                         app.show("Connection failure: " + error, true);
                     }
